@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense App</title>
+</head>
+<body>
+    <h1>Expense Tracker</h1>
+
+    <form action="/add" method="post">
+        <input type="text" name="name" placeholder="Expense name" required>
+        <input type="number" name="amount" placeholder="Amount" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>Expenses</h2>
+    <ul>
+        {% for expense in expenses %}
+            <li>{{ expense.name }} - {{ expense.amount }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
