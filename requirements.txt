@@ -1,2 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
+python-dotenv
+python-multipart
+jinja2
+openpyxl
+pillow
+supabase
+requests
