@@ -1,3 +1,6 @@
+import pytesseract
+from PIL import Image
+import re
 from fastapi import FastAPI, File, UploadFile, Form, Body
 from fastapi.responses import StreamingResponse, HTMLResponse, JSONResponse
 from supabase import create_client
@@ -7,6 +10,40 @@ import csv
 import base64
 import textwrap
 
+def extract_receipt_data(image_bytes):
+    try:
+        image = Image.open(io.BytesIO(image_bytes))
+        text = pytesseract.image_to_string(image)
+
+        # Basic parsing
+        amount = 0.0
+        date = ""
+        vendor = ""
+
+        # Find amount (very basic)
+        amounts = re.findall(r"\d+\.\d{2}", text)
+        if amounts:
+            amount = float(amounts[-1])  # take last one
+
+        # Find date
+        dates = re.findall(r"\d{2}[/-]\d{2}[/-]\d{2,4}", text)
+        if dates:
+            date = dates[0]
+
+        # Vendor = first line
+        lines = [l.strip() for l in text.split("\n") if l.strip()]
+        if lines:
+            vendor = lines[0][:50]
+
+        return {
+            "amount": amount,
+            "date": date,
+            "vendor": vendor,
+            "raw_text": text[:500]
+        }
+
+    except Exception:
+        return {}
 app = FastAPI()
 
 HOME_CURRENCY = os.environ.get("HOME_CURRENCY", "EUR")
